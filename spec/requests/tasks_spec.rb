@@ -31,6 +31,15 @@ RSpec.describe "Tasks", type: :request do
           expect(response).to redirect_to(tasks_path)
           expect(Task.last.due_date).to be_nil
         end
+
+        it "creates the task assigned to a user" do
+          assignee = create(:user)
+
+          post tasks_path, params: {task: {title: "Book flights", user_id: assignee.id}}
+
+          expect(response).to redirect_to(tasks_path)
+          expect(Task.last.user).to eq(assignee)
+        end
       end
 
       context "without a title" do
@@ -83,6 +92,24 @@ RSpec.describe "Tasks", type: :request do
         expect(response).to redirect_to(tasks_path)
       end
 
+      it "assigns the task to a user" do
+        assignee = create(:user)
+
+        patch task_path(task), params: {task: {user_id: assignee.id}}
+
+        expect(response).to redirect_to(tasks_path)
+        expect(task.reload.user).to eq(assignee)
+      end
+
+      it "unassigns the task" do
+        task = create(:task, user: create(:user))
+
+        patch task_path(task), params: {task: {user_id: ""}}
+
+        expect(response).to redirect_to(tasks_path)
+        expect(task.reload.user).to be_nil
+      end
+
       it "updates the due date" do
         patch task_path(task), params: {task: {due_date: "2026-08-15"}}
 
@@ -107,6 +134,23 @@ RSpec.describe "Tasks", type: :request do
         get tasks_path
 
         expect(response.body).to include("Due Jul 1, 2026")
+      end
+
+      it "shows the task's assignee" do
+        assignee = create(:user, name: "Avery Quill")
+        create(:task, user: assignee)
+
+        get tasks_path
+
+        expect(response.body).to include("Avery Quill")
+      end
+
+      it "shows unassigned tasks as Unassigned" do
+        create(:task)
+
+        get tasks_path
+
+        expect(response.body).to include("Unassigned")
       end
     end
   end

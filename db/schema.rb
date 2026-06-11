@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_190447) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_200416) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_190447) do
     t.date "due_date"
     t.string "title"
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -30,4 +32,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_190447) do
     t.string "password_digest"
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "tasks", "users"
 end

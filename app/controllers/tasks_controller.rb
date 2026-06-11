@@ -1,8 +1,9 @@
 class TasksController < ApplicationController
   before_action :authenticate_user
+  before_action :set_users, only: [:index, :edit, :create, :update]
 
   def index
-    @tasks = Task.all
+    @tasks = Task.includes(:user)
     @task = Task.new
   end
 
@@ -43,7 +44,11 @@ class TasksController < ApplicationController
 
   private
 
+  def set_users
+    @users = User.order(:name)
+  end
+
   def task_params
-    params.require(:task).permit(:title, :description, :complete, :due_date)
+    params.require(:task).permit(:title, :description, :complete, :due_date, :user_id)
   end
 end

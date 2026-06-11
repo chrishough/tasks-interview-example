@@ -16,6 +16,17 @@ RSpec.describe Task, type: :model do
     expect(build(:task, due_date: nil)).to be_valid
   end
 
+  it "is valid without an assigned user" do
+    expect(build(:task, user: nil)).to be_valid
+  end
+
+  it "can be assigned to a user" do
+    user = create(:user)
+    task = create(:task, user:)
+
+    expect(task.reload.user).to eq(user)
+  end
+
   it "stores a due date" do
     task = create(:task, due_date: Date.new(2026, 7, 1))
 
