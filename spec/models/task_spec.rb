@@ -5,6 +5,13 @@ RSpec.describe Task, type: :model do
     expect(build(:task)).to be_valid
   end
 
+  it "requires a title" do
+    task = build(:task, title: nil)
+
+    expect(task).not_to be_valid
+    expect(task.errors[:title]).to include("can't be blank")
+  end
+
   it "is valid without a due date" do
     expect(build(:task, due_date: nil)).to be_valid
   end
