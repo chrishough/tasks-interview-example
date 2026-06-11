@@ -1,0 +1,31 @@
+<h1 class="text-xl mb-6">Your Profile</h1>
+
+<%# After a failed save the pending attachment is unsaved and can't generate a URL %>
+<%- if @user.avatar.attachment&.persisted? %>
+  <%= image_tag @user.avatar, class: "h-24 w-24 rounded-full object-cover mb-4" %>
+<%- else %>
+  <div class="h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center mb-4 text-2xl">
+    <%= @user.name.to_s.first %>
+  </div>
+<%- end %>
+
+<%= form_for @user, url: profile_path, html: { class: "flex flex-col w-fit gap-y-4", multipart: true } do |form| %>
+  <%- if @user.errors.any? %>
+    <ul class="text-red-600">
+      <%- @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <%- end %>
+    </ul>
+  <%- end %>
+
+  <%= form.label :name %>
+  <%= form.text_field :name %>
+
+  <%= form.label :email %>
+  <%= form.email_field :email %>
+
+  <%= form.label :avatar %>
+  <%= form.file_field :avatar, accept: User::ALLOWED_AVATAR_TYPES.join(",") %>
+
+  <%= form.submit "Save Profile", class: "p-2 border rounded bg-gray-100 hover:bg-gray-200 cursor-pointer" %>
+<% end %>
