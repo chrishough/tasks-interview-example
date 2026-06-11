@@ -1,8 +1,10 @@
 class TasksController < ApplicationController
+  SORTABLE_COLUMNS = ["title", "due_date"].freeze
+
   before_action :authenticate_user
 
   def index
-    @tasks = Task.all
+    @tasks = sorted_tasks
     @task = Task.new
   end
 
@@ -16,7 +18,7 @@ class TasksController < ApplicationController
     if @task.save
       redirect_to tasks_path
     else
-      @tasks = Task.all
+      @tasks = sorted_tasks
       render :index, status: :unprocessable_content
     end
   end
@@ -45,5 +47,12 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task).permit(:title, :description, :complete, :due_date)
+  end
+
+  def sorted_tasks
+    return Task.all unless SORTABLE_COLUMNS.include?(params[:sort])
+
+    direction = (params[:direction] == "desc") ? :desc : :asc
+    Task.order(params[:sort] => direction)
   end
 end

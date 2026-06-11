@@ -108,6 +108,37 @@ RSpec.describe "Tasks", type: :request do
 
         expect(response.body).to include("Due Jul 1, 2026")
       end
+
+      describe "sorting" do
+        before do
+          create(:task, title: "Walk the dog", due_date: Date.new(2026, 7, 1))
+          create(:task, title: "Book flights", due_date: Date.new(2026, 8, 15))
+        end
+
+        it "orders tasks by title ascending" do
+          get tasks_path, params: {sort: "title", direction: "asc"}
+
+          expect(response.body.index("Book flights")).to be < response.body.index("Walk the dog")
+        end
+
+        it "orders tasks by title descending" do
+          get tasks_path, params: {sort: "title", direction: "desc"}
+
+          expect(response.body.index("Walk the dog")).to be < response.body.index("Book flights")
+        end
+
+        it "orders tasks by due date" do
+          get tasks_path, params: {sort: "due_date", direction: "desc"}
+
+          expect(response.body.index("Book flights")).to be < response.body.index("Walk the dog")
+        end
+
+        it "ignores an unknown sort column" do
+          get tasks_path, params: {sort: "created_at; DROP TABLE tasks", direction: "asc"}
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
   end
 
